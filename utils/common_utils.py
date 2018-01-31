@@ -10,6 +10,9 @@ import PIL
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib import pylab
+from matplotlib import animation
+
 
 def crop_image(img, d=32):
     '''Make dimensions divisible by `d`'''
