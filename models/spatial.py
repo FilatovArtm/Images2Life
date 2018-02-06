@@ -40,7 +40,7 @@ class Net(nn.Module):
         grid = self.localization(x)
         grid = grid.view(-1, grid.data.shape[2], grid.data.shape[3], 2)
 
-        grid = grid / torch.max(torch.abs(grid))
+        grid = F.tanh(grid)
         xs = F.grid_sample(x, grid)
 
         return xs
