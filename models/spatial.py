@@ -12,43 +12,38 @@ class Net(nn.Module):
         self.context = skip(**skip_args)
 
         # Spatial transformer localization-network
-        self.localization = nn.Sequential(
-            nn.Conv2d(input_depth, 30, kernel_size=7),
-            nn.MaxPool2d(2, stride=2),
-            nn.ReLU(True),
-            nn.Conv2d(30, 10, kernel_size=5),
-            nn.MaxPool2d(2, stride=2),
-            nn.ReLU(True)
-        )
+        self.localization = nn.Sequential()
+        self.localization.add(conv(input_depth, input_depth, 3, 2, bias=True, pad=2))
+        self.localization.add(bn(input_depth))
+        self.localization.add(act('LeakyReLU'))
 
-        # Regressor for the 3 * 2 affine matrix
-        self.fc_loc = nn.Sequential(
-            nn.Linear(10 * (28 ** 2), 32), # for 128 input_size
-            nn.ReLU(True),
-            nn.Linear(32, 3 * 2)
-        )
+        self.localization.add(conv(input_depth, 2, 3, bias=True, pad=2))
+        self.localization.add(bn(2))
+        self.localization.add(act('LeakyReLU'))
 
-        self.final = nn.Sequential(
-            nn.Conv2d(input_depth + 3, 3, kernel_size=2, padding=1),
-            nn.MaxPool2d(2, stride=1),
-            nn.ReLU(True)
-        )
+        self.localization.add(nn.Upsample(scale_factor=2, mode="nearest"))
 
-        # Initialize the weights/bias with identity transformation
-        self.fc_loc[2].weight.data.fill_(0)
-        self.fc_loc[2].bias.data = torch.FloatTensor([1, 0, 0, 0, 1, 0])
+
+        self.final = nn.Sequential()
+        self.final.add(conv(input_depth + 3, 4, 3, 2, bias=True, pad=2, downsample_mode="stride"))
+        self.final.add(bn(4))
+        self.final.add(act('LeakyReLU'))
+
+        self.final.add(conv(4, 3, 3, bias=True, pad=2))
+        self.final.add(bn(3))
+        self.final.add(act('LeakyReLU'))
+        self.final.add(nn.Upsample(scale_factor=2, mode="nearest"))
+
 
     # Spatial transformer network forward function
     def stn(self, x):
-        xs = self.localization(x)
-        xs = xs.view(len(x), -1)
-        theta = self.fc_loc(xs)
-        theta = theta.view(-1, 2, 3)
+        grid = self.localization(x)
+        grid = grid.view(-1, grid.data.shape[2], grid.data.shape[3], 2)
 
-        grid = F.affine_grid(theta, x.size())
-        x = F.grid_sample(x, grid)
+        grid = grid / torch.max(torch.abs(grid))
+        xs = F.grid_sample(x, grid)
 
-        return x
+        return xs
 
     def forward(self, x):
         # transform the input
