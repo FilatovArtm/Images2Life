@@ -17,22 +17,23 @@ class Net(nn.Module):
         self.localization.add(bn(input_depth))
         self.localization.add(act('LeakyReLU'))
 
+        self.localization.add(nn.Upsample(scale_factor=2, mode="nearest"))
         self.localization.add(conv(input_depth, 2, 3, bias=True, pad=2))
         self.localization.add(bn(2))
         self.localization.add(act('LeakyReLU'))
 
-        self.localization.add(nn.Upsample(scale_factor=2, mode="nearest"))
+
 
 
         self.final = nn.Sequential()
-        self.final.add(conv(input_depth + 3, 4, 3, 2, bias=True, pad=2, downsample_mode="stride"))
-        self.final.add(bn(4))
-        self.final.add(act('LeakyReLU'))
-
-        self.final.add(conv(4, 3, 3, bias=True, pad=2))
-        self.final.add(bn(3))
+        self.final.add(conv(input_depth + 3, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
+        self.final.add(bn(input_depth + 3))
         self.final.add(act('LeakyReLU'))
         self.final.add(nn.Upsample(scale_factor=2, mode="nearest"))
+
+        self.final.add(conv(input_depth + 3, 3, 3, bias=True, pad=2))
+        self.final.add(nn.Sigmoid())
+
 
 
     # Spatial transformer network forward function
