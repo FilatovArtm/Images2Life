@@ -5,10 +5,10 @@ from .common import *
 import torch.nn.functional as F
 
 class Net(nn.Module):
-    def __init__(self, input_depth, pic_size, skip_args):
+    def __init__(self, input_depth, pic_size, skip_args, spatial_only=False):
         super(Net, self).__init__()
         # Context network
-
+        self.spatial_only_ = spatial_only
         self.context = skip(**skip_args)
 
         # Spatial transformer localization-network
@@ -21,12 +21,18 @@ class Net(nn.Module):
         self.localization.add(conv(input_depth, 2, 3, bias=True, pad=2))
         self.localization.add(bn(2))
         self.localization.add(act('LeakyReLU'))
-
-
-
+        
+        self.grid_prior_ = torch.zeros((1, 128, 128, 2)) 
+        self.grid_prior_[0, :, :, 0] += torch.linspace(-1, 1, 128)
+        self.grid_prior_[0, :, :, 1] += torch.linspace(-1, 1, 128)[:, None]
+        self.grid_prior_ = torch.autograd.Variable(self.grid_prior_.cuda())
 
         self.final = nn.Sequential()
-        self.final.add(conv(input_depth + 3, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
+        if self.spatial_only_ is False:
+            self.final.add(conv(input_depth + 3, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
+        else:
+            self.final.add(conv(input_depth, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
+            
         self.final.add(bn(input_depth + 3))
         self.final.add(act('LeakyReLU'))
         self.final.add(nn.Upsample(scale_factor=2, mode="nearest"))
@@ -39,14 +45,17 @@ class Net(nn.Module):
     # Spatial transformer network forward function
     def stn(self, x):
         grid = self.localization(x)
+    
         grid = grid.view(-1, grid.data.shape[2], grid.data.shape[3], 2)
-
-        grid = F.tanh(grid)
-        xs = F.grid_sample(x, grid)
+       
+        xs = F.grid_sample(x, F.tanh(grid + self.grid_prior_))
 
         return xs
 
     def forward(self, x):
         # transform the input
-        res = self.final(torch.cat([self.stn(x), self.context(x)], dim=1))
+        if self.spatial_only_ is True:
+            res = self.final(self.stn(x))
+        else: 
+            res = self.final(torch.cat([self.stn(x), self.context(x)], dim=1))
         return res
