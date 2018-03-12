@@ -19,14 +19,16 @@ class Net(nn.Module):
         self.grid_prior_ = torch.autograd.Variable(self.grid_prior_.cuda())
 
         self.final = nn.Sequential()
+        self.final.add(nn.Upsample(scale_factor=2, mode="nearest"))
+        
         if self.spatial_only_ is False:
             self.final.add(conv(input_depth + 3, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
         else:
             self.final.add(conv(input_depth, input_depth + 3, 3, 2, bias=True, pad=2, downsample_mode="stride"))
 
+
         self.final.add(bn(input_depth + 3))
         self.final.add(act('LeakyReLU'))
-        self.final.add(nn.Upsample(scale_factor=2, mode="nearest"))
 
         self.final.add(conv(input_depth + 3, 3, 3, bias=True, pad=2))
         self.final.add(nn.Sigmoid())
