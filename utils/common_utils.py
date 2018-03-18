@@ -265,3 +265,39 @@ def write_video(fname, video_to_write, dpi=100):
     writer = animation.writers['ffmpeg'](fps=30)
 
     ani.save(fname,writer=writer,dpi=dpi)
+
+def plotRectangle(x, vertex=(0, 0), size=10, color=(10, 100, 100)):
+    x[vertex[0] : vertex[0] + size, vertex[1] : vertex[1] + size] = color
+    return x
+
+def plotCircle(x, vertex=(0, 0), size=10, color=(10, 100, 100)):
+    x_array = np.arange(vertex[0] - size, vertex[0] + size + 1)
+    upperPart_y = (vertex[1] + np.sqrt(size ** 2 - (x_array - vertex[0]) ** 2))
+    lowerPart_y = (vertex[1] - np.sqrt(size ** 2 - (x_array - vertex[0]) ** 2))
+    
+    upperPart_y = upperPart_y.astype(int)
+    lowerPart_y = lowerPart_y.astype(int)
+
+    for i in range(len(lowerPart_y)):
+        tmp_y = np.arange(lowerPart_y[i], upperPart_y[i])
+        tmp_x = (np.ones(len(tmp_y)) * x_array[i]).astype(int)
+        x[tmp_y, tmp_x] = color
+    return x
+
+def animateFigure(path, drawer, color=(10, 100, 100), size=10):
+    frames = []
+    for point in path:
+        x = np.ones((256, 256, 3))
+        x = drawer(x, vertex=point, color=color, size=size)
+        frames.append(x)
+    return np.array(frames)
+
+def generateSyntheticData():
+    circle_path = np.ones((128, 2)) * np.arange(40, 40 + 128)[:, None]
+    frames_circle = animateFigure(circle_path, plotCircle, size=40)
+
+    rectangle_path = np.ones((128, 2)) * 200
+    rectangle_path[:, 1] = np.arange(10, 138)
+    frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
+
+    return frames_rec + frames_circle
