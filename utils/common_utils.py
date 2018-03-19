@@ -10,6 +10,9 @@ import PIL
 import numpy as np
 
 import matplotlib.pyplot as plt
+plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+
+
 from matplotlib import pylab
 from matplotlib import animation
 
