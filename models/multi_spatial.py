@@ -28,7 +28,7 @@ class Net(nn.Module):
             grid = grid.view(-1, grid.shape[2], grid.shape[3], 2)
             results.append(F.grid_sample(x, F.tanh(grid + self.grid_prior_)))
 
-        return torch.cat(results)
+        return torch.cat(results, dim=1)
 
     def forward(self, x):
         res = self.tail_(self.stn(x))
