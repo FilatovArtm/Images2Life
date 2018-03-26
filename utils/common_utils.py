@@ -324,7 +324,7 @@ def generateSyntheticTexture():
     rectangle_path = np.ones((16, 2)) * 200
     rectangle_path[:, 1] = np.arange(10, 10 + 16)
 
-    rectangle_path = np.hstack(rectangle_path, rectangle_path[-1::-1])
+    rectangle_path = np.hstack([rectangle_path, rectangle_path[-1::-1]])
     rectangle_path = np.repeat(rectangle_path, repeats=4, axis=1)
     frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
 
