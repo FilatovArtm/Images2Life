@@ -1,3 +1,5 @@
+from experiment.spatial_utils import plotter
+
 class Experiment:
 
     def __init__(self, config, optimize_parameters, batch_generator, net, loss, plotter=plotter):

@@ -1,3 +1,9 @@
+from experiment.experiment import Experiment
+from experiment.spatial_utils import preprocessTarget, SpatialLoss, SpatialMapsGenerator, BatchGenerator
+from models import spatial
+from utils.common_utils import generateSyntheticData
+
+
 config = {
     "PLOT": True,
     "optimizer": "adam",
@@ -10,18 +16,18 @@ config = {
     "video_length": 64
 }
 
-skip_params = {'num_input_channels': input_depth,
+skip_params = {'num_input_channels': config['maps_number'],
                'num_channels_down': [8, 16, 24],
                'num_channels_up': [8, 16, 24],
                'num_channels_skip': [4, 4, 4]}
 
-pregrid_params = {'num_input_channels': input_depth,
+pregrid_params = {'num_input_channels': config['maps_number'],
                   'num_output_channels': 2,
                   'num_channels_down': [8, 16, 24],
                   'num_channels_up': [8, 16, 24],
                   'num_channels_skip': [4, 4, 4]}
 
-net = spatial.Net(input_depth=input_depth, pic_size=N, skip_args_main=skip_params,
+net = spatial.Net(input_depth=config['maps_number'], pic_size=config['input_size'], skip_args_main=skip_params,
                   skip_args_grid=pregrid_params).type(dtype)
 
 
@@ -38,4 +44,3 @@ for var in spatial_maps_generator.spatial_variables.values():
 
 experiment = Experiment(config, parameters, batch_generator, net, loss)
 experiment.run()
-
