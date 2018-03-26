@@ -44,9 +44,19 @@ class Experiment:
         file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
 
         path = 'experiment_results/{}'.format(file_name)
+        self.path_ = path
         os.makedirs(path)
 
         write_video(path + "/predict.mp4", video_predict)
+
+        X, Y = self.batch_generator_(mode='train')
+        Y_hat = self.net_(X)
+        video_fit = prepareWriting(Y_hat)
+        write_video(path + "/fit.mp4", video_fit)
+
+        video_target = prepareWriting(Y)
+        write_video(path + "/target.mp4", video_target)
+
         with open(path + "/config.json", "w") as f:
             json.dump(self.config_, f)
 
