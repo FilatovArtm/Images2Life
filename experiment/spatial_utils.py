@@ -48,7 +48,7 @@ class BatchGenerator:
         if mode == 'train':
             return self.maps_generator_(0, len(self.target_), self.k, self.r), self.target_
         else:
-            return self.maps_generator_(len(self.target_), len(self.target_) + 64, self.k, self.r), self.target_
+            return self.maps_generator_(len(self.target_), len(self.target_) + 64, self.k, self.r)
 
 
 
