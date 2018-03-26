@@ -308,9 +308,9 @@ def generateSyntheticData():
 
 def generateSyntheticTexture():
 
-    x_array = np.arange(60, 60 + 16)
-    upperPart_y = (100 + np.sqrt(8 ** 2 - (x_array - 68) ** 2))
-    lowerPart_y = (100 - np.sqrt(8 ** 2 - (x_array - 68) ** 2))
+    x_array = np.arange(60, 60 + 18)
+    upperPart_y = (100 + np.sqrt(9 ** 2 - (x_array - 69) ** 2))
+    lowerPart_y = (100 - np.sqrt(9 ** 2 - (x_array - 69) ** 2))
 
     upperPart_y = upperPart_y.astype(int)
     lowerPart_y = lowerPart_y.astype(int)
@@ -318,15 +318,15 @@ def generateSyntheticTexture():
     circle_path = np.array([x_array, upperPart_y])
     reverse_path = np.array([x_array[-2::-1], lowerPart_y[-2::-1]])
     circle_path = np.hstack([circle_path, reverse_path])
-    circle_path = np.repeat(circle_path, axis=0, repeats=2).reshape(2, -1).T
+    circle_path = np.repeat(circle_path, axis=0, repeats=6).reshape(2, -1).T
 
     frames_circle = animateFigure(circle_path, plotCircle, size=40)
 
-    rectangle_path = np.ones((16, 2)) * 200
-    rectangle_path[:, 1] = np.arange(10, 10 + 16)
+    rectangle_path = np.ones((18, 2)) * 200
+    rectangle_path[:, 1] = np.arange(10, 10 + 18)
 
     rectangle_path = np.hstack([rectangle_path.T, rectangle_path[-2::-1].T])
-    rectangle_path = np.repeat(rectangle_path, repeats=2, axis=0).reshape(2, -1).T
+    rectangle_path = np.repeat(rectangle_path, repeats=6, axis=0).reshape(2, -1).T
     frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
 
     return (frames_rec + frames_circle) / 255
