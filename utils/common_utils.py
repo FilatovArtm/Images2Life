@@ -304,3 +304,28 @@ def generateSyntheticData():
     frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
 
     return frames_rec + frames_circle
+
+def generateSyntheticTexture():
+
+    x_array = np.arange(40, 40 + 16)
+    upperPart_y = (40 + np.sqrt(8 ** 2 - (x_array - 48) ** 2))
+    lowerPart_y = (40 - np.sqrt(8 ** 2 - (x_array - 48) ** 2))
+
+    upperPart_y = upperPart_y.astype(int)
+    lowerPart_y = lowerPart_y.astype(int)
+
+    circle_path = np.array([x_array, upperPart_y])
+    reverse_path = np.array([x_array[-1::-1], lowerPart_y[-1::-1]])
+    circle_path = np.hstack([circle_path, reverse_path])
+    circle_path = np.repeat(circle_path, axis=1, repeats=4)
+
+    frames_circle = animateFigure(circle_path, plotCircle, size=40)
+
+    rectangle_path = np.ones((16, 2)) * 200
+    rectangle_path[:, 1] = np.arange(10, 10 + 16)
+
+    rectangle_path = np.hstack(rectangle_path, rectangle_path[-1::-1])
+    rectangle_path = np.repeat(rectangle_path, repeats=4, axis=1)
+    frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
+
+    return frames_rec + frames_circle
