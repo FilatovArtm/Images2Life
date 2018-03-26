@@ -1,4 +1,5 @@
 from experiment.spatial_utils import plotter
+from utils.common_utils import optimize
 
 class Experiment:
 
@@ -22,7 +23,7 @@ class Experiment:
             total_loss.backward()
 
             print('Iteration %05d    Loss %f' %
-                  (i, self.loss_.data[0]), '\r', end='')
+                  (i, total_loss.data[0]), '\r', end='')
             if self.config_["PLOT"] and i % self.config_["show_every"] == 0:
                 self.plotter_(Y_hat)
 

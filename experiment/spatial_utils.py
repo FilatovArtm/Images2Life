@@ -1,5 +1,11 @@
 import torch
 import numpy as np
+from torchvision.models.vgg import vgg16
+import skvideo.io
+from skimage.transform import resize
+from torch.autograd import Variable
+from utils.common_utils import plot_image_grid
+
 
 
 class SpatialMapsGenerator:
@@ -8,8 +14,8 @@ class SpatialMapsGenerator:
         self.spatial_variables = {"alpha": None,
                                   "beta": None, "gamma": None, "delta": None}
         self.maps_number_ = M
-        for key in spatial_variables:
-            spatial_variables[key] = numpyToVar(np.random.normal(
+        for key in self.spatial_variables:
+            self.spatial_variables[key] = numpyToVar(np.random.normal(
                 0, noise_level, M), requires_grad=True)
 
     def __call__(self, T, k, r):
@@ -70,7 +76,7 @@ class LossNetwork(torch.nn.Module):
 
 def plotter(net_output):
     out_np = net_output[0].cpu().data.numpy()
-    plot_image_grid([np.clip(out_np, 0, 1)], factor=figsize, nrow=1)
+    plot_image_grid([np.clip(out_np, 0, 1)], factor=4, nrow=1)
 
 
 def mse_loss(input, target):
