@@ -52,7 +52,7 @@ class BatchGenerator:
 
 
 
-class SpatialLoss:
+class PerceptualLoss:
 
     def __init__(self):
         vgg_model = vgg16(pretrained=True)
@@ -60,7 +60,7 @@ class SpatialLoss:
         self.loss_network_.eval()
 
     def __call__(self, Y, Y_hat):
-        return mse_loss(Y_hat, Y) + mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y))
+        return mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y))
 
 
 class LossNetwork(torch.nn.Module):
