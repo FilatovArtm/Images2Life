@@ -38,7 +38,7 @@ class Experiment:
                  closure, self.config_["lr"], self.config_["num_iter"])
 
     def save_result(self):
-        X = batch_generator_(mode='test')
+        X = self.batch_generator_(mode='test')
         Y_hat = self.net_(X)
         video_predict = prepareWriting(Y_hat)
         file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
@@ -46,7 +46,7 @@ class Experiment:
         path = 'experiment_results/{}'.format(file_name)
         os.makedirs(path)
 
-        write_video(video_predict, path + "/predict.mp4")
+        write_video(path + "/predict.mp4", video_predict)
         with open(path + "/config.json", "w") as f:
             json.dump(self.config_, f)
 
