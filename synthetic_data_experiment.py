@@ -2,6 +2,8 @@ from experiment.experiment import Experiment
 from experiment.spatial_utils import preprocessTarget, SpatialLoss, SpatialMapsGenerator, BatchGenerator
 from models import spatial
 from utils.common_utils import generateSyntheticData
+import torch
+dtype = torch.cuda.FloatTensor
 
 
 config = {
@@ -27,6 +29,8 @@ pregrid_params = {'num_input_channels': config['maps_number'],
                   'num_channels_up': [8, 16, 24],
                   'num_channels_skip': [4, 4, 4]}
 
+config['net_params'] = [skip_params, pregrid_params]
+
 net = spatial.Net(input_depth=config['maps_number'], pic_size=config['input_size'], skip_args_main=skip_params,
                   skip_args_grid=pregrid_params).type(dtype)
 
@@ -35,10 +39,10 @@ video = generateSyntheticData()
 target = preprocessTarget(video, config["video_length"], config["output_size"])
 loss = SpatialLoss()
 spatial_maps_generator = SpatialMapsGenerator(config["maps_number"])
-batch_generator = BatchGenerator(target, spatial_maps_generator, config["maps_number"], config[
+batch_generator = BatchGenerator(target, spatial_maps_generator, config[
                                  "input_size"], config["input_size"])
 
-parameters = [net.get_parameters()]
+parameters = list(net.parameters())
 for var in spatial_maps_generator.spatial_variables.values():
     parameters.append(var)
 
