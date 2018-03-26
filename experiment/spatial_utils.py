@@ -18,7 +18,7 @@ class SpatialMapsGenerator:
             self.spatial_variables[key] = numpyToVar(np.random.normal(
                 0, noise_level, M), requires_grad=True)
 
-    def __call__(self, T, k, r):
+    def __call__(self, start_T, end_T, k, r):
         x, y = map(lambda x: numpyToVar(x.astype(np.float32)),
                    np.meshgrid(np.arange(k), np.arange(r)))
         single_maps = x[None, :, :] * \
@@ -27,8 +27,8 @@ class SpatialMapsGenerator:
             self.spatial_variables["beta"][:, None, None]
         single_maps += self.spatial_variables["delta"][:, None, None]
 
-        single_maps = single_maps.expand(T, self.maps_number_, k, r)
-        single_maps += torch.ger(Variable(torch.arange(0, T)
+        single_maps = single_maps.expand(end_T - start_T, self.maps_number_, k, r)
+        single_maps += torch.ger(Variable(torch.arange(start_T, end_T)
                                           ).cuda(), self.spatial_variables["gamma"])[:, :, None, None]
 
         return single_maps
@@ -43,8 +43,11 @@ class BatchGenerator:
         self.r = r
         self.T = len(target)
 
-    def __call__(self):
-        return self.maps_generator_(self.T, self.k, self.r), self.target_
+    def __call__(self, mode='train'):
+        if mode == 'train':
+            return self.maps_generator_(0, self.T, self.k, self.r), self.target_
+        else:
+            return self.maps_generator_(self.T, self.T * 2, self.k, self.r)
 
 
 class SpatialLoss:
@@ -88,6 +91,8 @@ def numpyToVar(x, requires_grad=False):
     xs = xs.cuda()
     return Variable(xs, requires_grad=requires_grad)
 
+def prepareWriting(x):
+    return np.clip(np.transpose(x.cpu().data.numpy(), (0, 2, 3, 1)), 0, 1)
 
 def preprocessTarget(video, T, pic_size):
     data = video / np.max(video)

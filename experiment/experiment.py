@@ -1,5 +1,8 @@
-from experiment.spatial_utils import plotter
-from utils.common_utils import optimize
+from experiment.spatial_utils import plotter, prepareWriting
+from utils.common_utils import optimize, write_video
+import time
+import json
+import os
 
 class Experiment:
 
@@ -33,3 +36,17 @@ class Experiment:
 
         optimize(self.config_["optimizer"], self.optimize_parameters_,
                  closure, self.config_["lr"], self.config_["num_iter"])
+
+    def save_result(self):
+        X = batch_generator_(mode='test')
+        Y_hat = self.net_(X)
+        video_predict = prepareWriting(Y_hat)
+        file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
+
+        path = 'experiment_results/{}'.format(file_name)
+        os.makedirs(path)
+
+        write_video(video_predict, path + "/predict.mp4")
+        with open(path + "/config.json", "w") as f:
+            json.dump(self.config_, f)
+
