@@ -28,10 +28,11 @@ class SpatialMapsGenerator:
         single_maps += self.spatial_variables["delta"][:, None, None]
 
         single_maps = single_maps.expand(end_T - start_T, self.maps_number_, k, r)
-        single_maps += torch.ger(Variable(torch.arange(start_T, end_T)
-                                          ).cuda(), self.spatial_variables["gamma"])[:, :, None, None]
+        time_vars = torch.ger(Variable(torch.arange(start_T, end_T)).cuda(), spatial_maps_generator.spatial_variables["gamma"])[:, :, None, None]
+        time_vars = time_vars.expand(end_T - start_T, self.maps_number_, k, r)
+        result = single_maps + time_vars
 
-        return single_maps
+        return result
 
 
 class BatchGenerator:
