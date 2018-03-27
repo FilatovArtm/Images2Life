@@ -69,13 +69,15 @@ class BatchGeneratorVideoAndImage:
 
 class PerceptualLoss:
 
-    def __init__(self):
+    def __init__(self, alpha=1.):
         vgg_model = vgg16(pretrained=True)
         self.loss_network_ = LossNetwork(vgg_model.cuda())
         self.loss_network_.eval()
+        self.alpha_ = alpha
 
     def __call__(self, Y, Y_hat):
-        return mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y))
+        return mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y)) * self.alpha_ + 
+        mse_loss(Y_hat, Y) * (1 - self.alpha_)
 
 
 class LossNetwork(torch.nn.Module):
