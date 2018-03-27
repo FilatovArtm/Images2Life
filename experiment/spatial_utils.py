@@ -76,7 +76,7 @@ class PerceptualLoss:
         self.alpha_ = alpha
 
     def __call__(self, Y, Y_hat):
-        return mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y)) * self.alpha_ + 
+        return mse_loss(self.loss_network_(Y_hat), self.loss_network_(Y)) * self.alpha_ + \
         mse_loss(Y_hat, Y) * (1 - self.alpha_)
 
 
