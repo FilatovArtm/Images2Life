@@ -37,18 +37,34 @@ class SpatialMapsGenerator:
 
 class BatchGenerator:
 
-    def __init__(self, target, maps_generator, k, r):
+    def __init__(self, target, maps_generator, k, r, batch_size=8):
         self.target_ = target
         self.maps_generator_ = maps_generator
         self.k = k
         self.r = r
         self.T = len(target)
 
+        self.current_batch_ = 0
+        self.batch_size_ = batch_size_
+        self.n_batches_ = int(len(target) / batch_size)
+        self.batch_order_ = np.random.choice(self.n_batches_, size=self.n_batches_, replace=False)
+
+        self.test_batch_ = 0
+
     def __call__(self, mode='train'):
         if mode == 'train':
-            return self.maps_generator_(0, len(self.target_), self.k, self.r), self.target_
+            start = self.batch_order_[self.current_batch_] * batch_size
+            end = (self.batch_order_[self.current_batch_] + 1) * batch_size
+            self.current_batch_ += 1
+
+            if self.current_batch_ == len(self.batch_order_):
+                self.current_batch_ = 0
+                self.batch_order_ = np.random.choice(self.n_batches_, size=self.n_batches_, replace=False)
+            return self.maps_generator_(start, end, self.k, self.r), self.target_[start : end]
         else:
-            return self.maps_generator_(len(self.target_), len(self.target_) + 64, self.k, self.r)
+            start = self.test_batch_ * batch_size
+            end = (self.test_batch_ + 1) * batch_size
+            return self.maps_generator_(len(self.target_) + start, len(self.target_) + end, self.k, self.r)
 
 class BatchGeneratorVideoAndImage:
     def __init__(self, target, maps_generator_video, maps_generator_image, k, r):

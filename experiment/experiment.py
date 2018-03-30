@@ -37,24 +37,29 @@ class Experiment:
         optimize(self.config_["optimizer"], self.optimize_parameters_,
                  closure, self.config_["lr"], self.config_["num_iter"])
 
-    def save_result(self):
-        X = self.batch_generator_(mode='test')
-        Y_hat = self.net_(X)
-        video_predict = prepareWriting(Y_hat)
-        file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
+    def predict_video(self, start, length):
+        video_predict = []
 
+        for i in range(int(length / self.batch_generator_.batch_size_)):
+            X = self.batch_generator_(mode='test', start=start, n=i)
+            Y_hat = self.net_(X)
+            result.append(prepareWriting(Y_hat))
+
+        return np.concatenate(video_predict)
+
+    def save_result(self):
+        video_predict = predict_video(len(self.batch_generator_.target_), 64)
+        file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
         path = 'experiment_results/{}'.format(file_name)
         self.path_ = path
         os.makedirs(path)
 
         write_video(path + "/predict.mp4", video_predict)
 
-        X, Y = self.batch_generator_(mode='train')
-        Y_hat = self.net_(X)
-        video_fit = prepareWriting(Y_hat)
+        video_fit = predict_video(0, len(self.batch_generator_.target_))
         write_video(path + "/fit.mp4", video_fit)
 
-        video_target = prepareWriting(Y)
+        video_target = prepareWriting(self.batch_generator_.target_)
         write_video(path + "/target.mp4", video_target)
 
         with open(path + "/config.json", "w") as f:
