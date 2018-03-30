@@ -57,7 +57,7 @@ class Experiment:
 
         write_video(path + "/predict.mp4", video_predict)
 
-        video_fit = predict_video(0, len(self.batch_generator_.target_))
+        video_fit = self.predict_video(0, len(self.batch_generator_.target_))
         write_video(path + "/fit.mp4", video_fit)
 
         video_target = prepareWriting(self.batch_generator_.target_)
