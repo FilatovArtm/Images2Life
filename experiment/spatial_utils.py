@@ -45,9 +45,9 @@ class SpatialVectorGenerator:
                 0, noise_level, time_size), requires_grad=True)
 
     def __call__(self, start_T, end_T, k=0, r=0):
-        res = torch.ger(torch.arange(start_T, end_T), self.variables_["time_gamma"]) + self.variables_["time_delta"]
+        res = torch.ger(torch.arange(start_T, end_T).cuda(), self.variables_["time_gamma"]) + self.variables_["time_delta"]
         pic = self.variables_["picture"].expand(end_T - start_T, len(self.variables_["picture"]))
-        return torch.cat([pic, res])
+        return torch.cat([pic, resS])
 
 
 class BatchGenerator:
