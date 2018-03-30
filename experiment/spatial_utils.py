@@ -53,8 +53,8 @@ class BatchGenerator:
 
     def __call__(self, mode='train'):
         if mode == 'train':
-            start = self.batch_order_[self.current_batch_] * batch_size
-            end = (self.batch_order_[self.current_batch_] + 1) * batch_size
+            start = self.batch_order_[self.current_batch_] * self.batch_size_
+            end = (self.batch_order_[self.current_batch_] + 1) * self.batch_size_
             self.current_batch_ += 1
 
             if self.current_batch_ == len(self.batch_order_):
