@@ -45,7 +45,7 @@ class BatchGenerator:
         self.T = len(target)
 
         self.current_batch_ = 0
-        self.batch_size_ = batch_size_
+        self.batch_size_ = batch_size
         self.n_batches_ = int(len(target) / batch_size)
         self.batch_order_ = np.random.choice(self.n_batches_, size=self.n_batches_, replace=False)
 
