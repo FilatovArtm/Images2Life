@@ -38,14 +38,14 @@ class Experiment:
                  closure, self.config_["lr"], self.config_["num_iter"])
 
     def predict_video(self, start, length):
-        video_predict = []
+        result = []
 
         for i in range(int(length / self.batch_generator_.batch_size_)):
             X = self.batch_generator_(mode='test', begin=start, n=i)
             Y_hat = self.net_(X)
             result.append(prepareWriting(Y_hat))
 
-        return np.concatenate(video_predict)
+        return np.concatenate(result)
 
     def save_result(self):
         video_predict = self.predict_video(len(self.batch_generator_.target_), 64)
