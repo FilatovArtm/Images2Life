@@ -3,6 +3,7 @@ from utils.common_utils import optimize, write_video
 import time
 import json
 import os
+import numpy as np
 
 class Experiment:
 
