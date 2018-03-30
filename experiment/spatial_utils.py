@@ -51,10 +51,12 @@ class BatchGenerator:
 
         self.test_batch_ = 0
 
-    def __call__(self, mode='train'):
+    def __call__(self, mode='train', begin=0, n=0):
         if mode == 'train':
             start = self.batch_order_[self.current_batch_] * self.batch_size_
             end = (self.batch_order_[self.current_batch_] + 1) * self.batch_size_
+            start, end = int(start), int(end)
+
             self.current_batch_ += 1
 
             if self.current_batch_ == len(self.batch_order_):
@@ -62,9 +64,9 @@ class BatchGenerator:
                 self.batch_order_ = np.random.choice(self.n_batches_, size=self.n_batches_, replace=False)
             return self.maps_generator_(start, end, self.k, self.r), self.target_[start : end]
         else:
-            start = self.test_batch_ * self.batch_size_
-            end = (self.test_batch_ + 1) * self.batch_size_
-            return self.maps_generator_(len(self.target_) + start, len(self.target_) + end, self.k, self.r)
+            start = int(begin + n * self.batch_size_)
+            end = int(begin + (n + 1) * self.batch_size_)
+            return self.maps_generator_(start, end, self.k, self.r)
 
 class BatchGeneratorVideoAndImage:
     def __init__(self, target, maps_generator_video, maps_generator_image, k, r):

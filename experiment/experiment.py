@@ -41,14 +41,14 @@ class Experiment:
         video_predict = []
 
         for i in range(int(length / self.batch_generator_.batch_size_)):
-            X = self.batch_generator_(mode='test', start=start, n=i)
+            X = self.batch_generator_(mode='test', begin=start, n=i)
             Y_hat = self.net_(X)
             result.append(prepareWriting(Y_hat))
 
         return np.concatenate(video_predict)
 
     def save_result(self):
-        video_predict = predict_video(len(self.batch_generator_.target_), 64)
+        video_predict = self.predict_video(len(self.batch_generator_.target_), 64)
         file_name = time.strftime("%d_%b_%Y:%H:%M:%S", time.gmtime())
         path = 'experiment_results/{}'.format(file_name)
         self.path_ = path
