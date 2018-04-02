@@ -1,5 +1,6 @@
 from utils.common_utils import numpyToVar
 import torch
+import numpy as np
 
 """
 Utils for exepriment where 1d vector with time and picture component is transformed into video.
