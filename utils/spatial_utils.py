@@ -1,10 +1,8 @@
 import torch
 import numpy as np
 from torchvision.models.vgg import vgg16
-import skvideo.io
-from skimage.transform import resize
 from torch.autograd import Variable
-from utils.common_utils import plot_image_grid, numpyToVar, mse_loss
+from utils.common_utils import numpyToVar, mse_loss
 
 
 

@@ -8,6 +8,8 @@ import numpy as np
 from PIL import Image
 import PIL
 import numpy as np
+from skimage.transform import resize
+import skvideo.io
 
 import matplotlib.pyplot as plt
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
