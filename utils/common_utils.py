@@ -330,3 +330,25 @@ def generateSyntheticTexture():
     frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
 
     return (frames_rec + frames_circle) / 255
+
+def plotter(net_output):
+    out_np = net_output[0].cpu().data.numpy()
+    plot_image_grid([np.clip(out_np, 0, 1)], factor=4, nrow=1)
+
+def mse_loss(input, target):
+    return torch.sum((input - target) ** 2) / input.data.nelement()
+
+def numpyToVar(x, requires_grad=False):
+    xs = torch.FloatTensor(x)
+    xs = xs.cuda()
+    return Variable(xs, requires_grad=requires_grad)
+
+def prepareWriting(x):
+    return np.clip(np.transpose(x.cpu().data.numpy(), (0, 2, 3, 1)), 0, 1)
+
+def preprocessTarget(video, T, pic_size):
+    data = video / np.max(video)
+    data = np.transpose(data[:T], [0, 3, 1, 2])
+    data = np.array(list(map(lambda x: resize(x, output_shape=(
+        3, pic_size, pic_size), mode='constant'), data)))
+    return numpyToVar(data)

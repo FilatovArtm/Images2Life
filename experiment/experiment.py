@@ -1,5 +1,4 @@
-from experiment.spatial_utils import plotter, prepareWriting
-from utils.common_utils import optimize, write_video
+from utils.common_utils import optimize, write_video, plotter, prepareWriting
 import time
 import json
 import os
