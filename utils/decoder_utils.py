@@ -1,4 +1,4 @@
-from common_utils import numpyToVar
+from utils.common_utils import numpyToVar
 import torch
 
 """
