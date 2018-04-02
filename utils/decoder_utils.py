@@ -22,3 +22,23 @@ class SpatialVectorGenerator:
             self.variables_["time_delta"])
         pic = self.variables_["picture"].expand(end_T - start_T, len(self.variables_["picture"]))
         return torch.cat([pic, res], dim=1)
+
+
+class MultipleVectorGenerator:
+    def __init__(self, time_size, picture_size, noise_level=0.1, n_examples=1, video_length=64):
+        self.n_examples = n_examples
+        self.video_length = video_length
+    
+        self.code_generators = []
+        for i in range(self.n_examples):
+            self.code_generators.append(SpatialVectorGenerator(time_size, picture_size))
+            
+        for i in range(1, self.n_examples):
+            self.code_generators[i].variables_["time_gamma"] = self.code_generators[0].variables_["time_gamma"]
+            self.code_generators[i].variables_["time_delta"] = self.code_generators[0].variables_["time_delta"]
+
+    def __call__(self, start_T, end_T, k=0, r=0):
+        texture_number = start // self.video_length
+        frame_number = start_T % self.video_length
+        length = end_T - start_T
+        return self.code_generators[texture_number](frame_number, frame_number + length)
