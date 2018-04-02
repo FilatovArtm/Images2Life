@@ -20,6 +20,7 @@ class Experiment:
         def closure():
             nonlocal i
             X, Y = self.batch_generator_()
+            X, Y = X.cuda(), Y.cuda()
             Y_hat = self.net_(X)
 
             total_loss = self.loss_(Y, Y_hat)

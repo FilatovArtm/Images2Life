@@ -354,7 +354,6 @@ def mse_loss(input, target):
 
 def numpyToVar(x, requires_grad=False):
     xs = torch.FloatTensor(x)
-    xs = xs.cuda()
     return Variable(xs, requires_grad=requires_grad)
 
 def prepareWriting(x):
