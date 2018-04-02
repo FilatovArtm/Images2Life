@@ -34,22 +34,6 @@ class SpatialMapsGenerator:
 
         return result
 
-class SpatialVectorGenerator:
-    def __init__(self, time_size, picture_size, noise_level=0.1):
-        self.variables_ = {"picture": None, "time_gamma": None, "time_delta": None}
-        self.variables_["picture"] = numpyToVar(np.random.normal(
-                0, noise_level, picture_size), requires_grad=True)
-        self.variables_["time_gamma"]  = numpyToVar(np.random.normal(
-                0, noise_level, time_size), requires_grad=True)
-        self.variables_["time_delta"]  = numpyToVar(np.random.normal(
-                0, noise_level, time_size), requires_grad=True)
-
-    def __call__(self, start_T, end_T, k=0, r=0):
-        res = torch.sin(torch.ger(torch.arange(start_T, end_T).cuda(), self.variables_["time_gamma"]) + self.variables_["time_delta"])
-        pic = self.variables_["picture"].expand(end_T - start_T, len(self.variables_["picture"]))
-        return torch.cat([pic, res], dim=1)
-
-
 class BatchGenerator:
 
     def __init__(self, target, maps_generator, k, r, batch_size=8):
@@ -83,22 +67,6 @@ class BatchGenerator:
             end = int(begin + (n + 1) * self.batch_size_)
             return self.maps_generator_(start, end, self.k, self.r)
 
-class BatchGeneratorVideoAndImage:
-    def __init__(self, target, maps_generator_video, maps_generator_image, k, r):
-        self.target_ = target
-        self.maps_generator_video_ = maps_generator_video
-        self.maps_generator_image_ = maps_generator_image
-        self.k = k
-        self.r = r
-        self.T = len(target)
-
-    def __call__(self, mode='train'):
-        if mode == 'train':
-            return torch.cat([self.maps_generator_video_(0, len(self.target_) - 1, self.k, self.r), 
-                              self.maps_generator_image_(0, 1, self.k, self.r)]), self.target_
-        else:
-            return self.maps_generator_image_(0, 64, self.k, self.r)
-
 
 class PerceptualLoss:
 
@@ -128,27 +96,3 @@ class LossNetwork(torch.nn.Module):
             if name in self.layer_name_mapping_:
                 return x
 
-
-def plotter(net_output):
-    out_np = net_output[0].cpu().data.numpy()
-    plot_image_grid([np.clip(out_np, 0, 1)], factor=4, nrow=1)
-
-
-def mse_loss(input, target):
-    return torch.sum((input - target) ** 2) / input.data.nelement()
-
-
-def numpyToVar(x, requires_grad=False):
-    xs = torch.FloatTensor(x)
-    xs = xs.cuda()
-    return Variable(xs, requires_grad=requires_grad)
-
-def prepareWriting(x):
-    return np.clip(np.transpose(x.cpu().data.numpy(), (0, 2, 3, 1)), 0, 1)
-
-def preprocessTarget(video, T, pic_size):
-    data = video / np.max(video)
-    data = np.transpose(data[:T], [0, 3, 1, 2])
-    data = np.array(list(map(lambda x: resize(x, output_shape=(
-        3, pic_size, pic_size), mode='constant'), data)))
-    return numpyToVar(data)

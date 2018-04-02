@@ -306,11 +306,23 @@ def generateSyntheticData():
     return frames_rec + frames_circle
 
 
-def generateSyntheticTexture():
+def generateSyntheticTexture(random=False, seed=0):
 
-    x_array = np.arange(60, 60 + 18)
-    upperPart_y = (100 + np.sqrt(9 ** 2 - (x_array - 69) ** 2))
-    lowerPart_y = (100 - np.sqrt(9 ** 2 - (x_array - 69) ** 2))
+    if random == True:
+        np.random.seed(seed)
+        circle_center = np.random.randint(50, 200, size=2)
+        rectangle_center = np.random.randint(30, 220, size=2)
+        circle_color = np.random.uniform(10, 240, size=3)
+        rec_color = np.random.uniform(10, 240, size=3)
+    else:
+        circle_center = [60, 100]
+        rectangle_center = [10, 200]
+        circle_color = (10, 100, 100)
+        rec_color = (150, 50, 150)
+
+    x_array = np.arange(circle_center[0], circle_center[0] + 18)
+    upperPart_y = (circle_center[1] + np.sqrt(9 ** 2 - (x_array - circle_center[0] - 9) ** 2))
+    lowerPart_y = (circle_center[1] - np.sqrt(9 ** 2 - (x_array - circle_center[0] - 9) ** 2))
 
     upperPart_y = upperPart_y.astype(int)
     lowerPart_y = lowerPart_y.astype(int)
@@ -320,13 +332,35 @@ def generateSyntheticTexture():
     circle_path = np.hstack([circle_path, reverse_path])
     circle_path = np.repeat(circle_path, axis=0, repeats=6).reshape(2, -1).T
 
-    frames_circle = animateFigure(circle_path, plotCircle, size=40)
+    frames_circle = animateFigure(circle_path, plotCircle, color=circle_color, size=40)
 
-    rectangle_path = np.ones((18, 2)) * 200
-    rectangle_path[:, 1] = np.arange(10, 10 + 18)
+    rectangle_path = np.ones((18, 2)) * rectangle_center[1]
+    rectangle_path[:, 1] = np.arange(rectangle_center[0], rectangle_center[0] + 18)
 
     rectangle_path = np.hstack([rectangle_path.T, rectangle_path[-2::-1].T])
     rectangle_path = np.repeat(rectangle_path, repeats=6, axis=0).reshape(2, -1).T
-    frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=(150, 50, 150), size=40)
+    frames_rec = animateFigure(rectangle_path.astype(int), plotRectangle, color=rec_color, size=40)
 
     return (frames_rec + frames_circle) / 255
+
+def plotter(net_output):
+    out_np = net_output[0].cpu().data.numpy()
+    plot_image_grid([np.clip(out_np, 0, 1)], factor=4, nrow=1)
+
+def mse_loss(input, target):
+    return torch.sum((input - target) ** 2) / input.data.nelement()
+
+def numpyToVar(x, requires_grad=False):
+    xs = torch.FloatTensor(x)
+    xs = xs.cuda()
+    return Variable(xs, requires_grad=requires_grad)
+
+def prepareWriting(x):
+    return np.clip(np.transpose(x.cpu().data.numpy(), (0, 2, 3, 1)), 0, 1)
+
+def preprocessTarget(video, T, pic_size):
+    data = video / np.max(video)
+    data = np.transpose(data[:T], [0, 3, 1, 2])
+    data = np.array(list(map(lambda x: resize(x, output_shape=(
+        3, pic_size, pic_size), mode='constant'), data)))
+    return numpyToVar(data)
