@@ -2,10 +2,10 @@ import torch
 import torch.utils.data
 import numpy as np
 from skimage.transform import resize
-from common_utils import generateSyntheticTexture,
-                        generateSyntheticImage,
-                        preprocessTarget,
-                        numpyToVar
+from utils.common_utils import generateSyntheticTexture, \
+                         generateSyntheticImage, \
+                         preprocessTarget, \
+                         numpyToVar
 
 
 class TimeMapsGenerator:
@@ -40,10 +40,10 @@ class GramAndImages(torch.utils.data.TensorDataset):
         '''
         One unit contains one image of video and one picture
         '''
-        image = generateSyntheticImage(index)
+        image = generateSyntheticImage(index)[0]
         image = np.transpose(image, [2, 0, 1])
         image = numpyToVar(
-            resize(image, output_shape=(3, size, size), mode='constant'))
+            resize(image, output_shape=(3, self.size_, self.size_), mode='constant'))
         # resize and transpose
 
         video_frame = self.video_[index]
@@ -53,7 +53,7 @@ class GramAndImages(torch.utils.data.TensorDataset):
         input_vid = torch.cat(
             [video_frame, self.maps_generator_(self.size_, time_stamp=index)])
 
-        return [input_im, input_vid], [image, video_frame]
+        return torch.cat([input_im[None], input_vid[None]]), torch.cat([image[None], video_frame[None]])
 
     def __len__(self):
         return self.video_length_

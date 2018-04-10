@@ -312,7 +312,7 @@ def generateSyntheticImage(seed=0):
     circle_vertex = np.random.randint(50, 180, size=(2))
     rec_vertex = np.random.randint(50, 180, size=(2))
 
-    cirlce_color = np.random.uniform(0, 1, size=3)
+    circle_color = np.random.uniform(0, 1, size=3)
     rec_color = np.random.uniform(0, 1, size=3)
 
     back_side = np.zeros((256, 256, 3))
