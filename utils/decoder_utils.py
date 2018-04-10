@@ -41,7 +41,7 @@ class MultipleVectorGenerator:
             self.code_generators[i].variables_["time_delta"] = self.code_generators[0].variables_["time_delta"]
 
     def __call__(self, start_T, end_T, k=0, r=0):
-        texture_number = start // self.video_length
+        texture_number = start_T // self.video_length
         frame_number = start_T % self.video_length
         length = end_T - start_T
         return self.code_generators[texture_number](frame_number, frame_number + length)
