@@ -307,6 +307,20 @@ def generateSyntheticData():
 
     return frames_rec + frames_circle
 
+def generateSyntheticImage(seed=0):
+    np.random.seed(seed)
+    circle_vertex = np.random.randint(50, 180, size=(2))
+    rec_vertex = np.random.randint(50, 180, size=(2))
+
+    cirlce_color = np.random.uniform(0, 1, size=3)
+    rec_color = np.random.uniform(0, 1, size=3)
+
+    back_side = np.zeros((256, 256, 3))
+    image = plotCircle(back_side, vertex=circle_vertex, size=40, color=circle_color)
+    image = plotRectangle(image, vertex=rec_vertex, size=30, color=rec_color)
+    image = np.array([image])
+    return image
+
 
 def generateSyntheticTexture(random=False, seed=0):
 
