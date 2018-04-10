@@ -42,7 +42,7 @@ class Experiment:
         result = []
 
         for i in range(int(length / self.batch_generator_.batch_size_)):
-            X = self.batch_generator_(mode='test', begin=start, n=i)
+            X = self.batch_generator_(mode='test', begin=start, n=i).cuda()
             Y_hat = self.net_(X)
             result.append(prepareWriting(Y_hat))
 
